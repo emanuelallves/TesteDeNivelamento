@@ -38,54 +38,65 @@ os.makedirs(pdf_files, exist_ok = True)
 
 def search_page(url):
 
-    resp = requests.get(url,
-                        cookies=cookies,
-                        headers=headers)
-        
-    if resp.status_code != 200:
+    try:
+        resp = requests.get(url,
+                            cookies=cookies,
+                            headers=headers)
+        resp.raise_for_status()
+
+        return resp.text
+    except requests.exceptions.RequestException as e:
         print('Error')
         return None
 
-    return resp.text
-
 def extract_pdf_links(html):
 
-    soup = BeautifulSoup(html, 'html.parser')
-    pdf_links = []
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+        pdf_links = []
 
-    for link in soup.find_all('a'):
-        href = link['href']
+        for link in soup.find_all('a'):
+            href = link['href']
 
-        if 'Anexo' in href and href.endswith('.pdf'):
-            pdf_links.append(urljoin(url, href))
+            if 'Anexo' in href and href.endswith('.pdf'):
+                pdf_links.append(urljoin(url, href))
 
-    if not pdf_links:
-        print('No PDFs found')
+        if not pdf_links:
+            print('No PDFs found')
     
-    return pdf_links
+        return pdf_links
+    except Exception as e:
+        print(f'Erro ao extrair links de PDF: {e}')
+        return []
 
 def download_pdf(pdf_url):
-    pdf_name = pdf_url.split('/')[-1]
-    pdf_path = os.path.join(pdf_files, pdf_name)
 
-    pdf_resp = requests.get(pdf_url, headers = headers)
+    try:
+        pdf_name = pdf_url.split('/')[-1]
+        pdf_path = os.path.join(pdf_files, pdf_name)
 
-    if pdf_resp.status_code == 200:
+        pdf_resp = requests.get(pdf_url, headers = headers)
+        pdf_resp.raise_for_status()
+
         with open(pdf_path, 'wb') as file:
             file.write(pdf_resp.content)
         
         print(f'Downloaded {pdf_name}')
-    else:
-        print(f'Error downloading {pdf_name}')
+    except requests.exceptions.RequestException as e:
+        print(f'Error downloading {pdf_name}: {e}')
 
 def compress_files():
-    zip_path = './Tasks/web_scraping/anexos.zip'
 
-    with zipfile.ZipFile(zip_path, 'w') as zip_file:
-        for file in os.listdir(pdf_files):
-            zip_file.write(os.path.join(pdf_files, file), file)
+    try:
+        zip_path = './Tasks/web_scraping/anexos.zip'
+
+        with zipfile.ZipFile(zip_path, 'w') as zip_file:
+            for file in os.listdir(pdf_files):
+                zip_file.write(os.path.join(pdf_files, file), file)
         
         print('Compressed files')
+    except Exception as e:
+        print(f'Error compressing files:: {e}')
 
 if __name__ == '__main__':
     
