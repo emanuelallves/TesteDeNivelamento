@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import buscarOperadora from "./SearchOperadora.js"; // Nome correto do arquivo JS
+import buscarOperadora from "./SearchOperadora.js";
 
 export default {
   data() {
