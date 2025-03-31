@@ -13,45 +13,21 @@
 </template>
 
 <script>
-import axios from 'axios';
+import buscarOperadora from "./SearchOperadora.js"; // Nome correto do arquivo JS
 
 export default {
   data() {
     return {
-      termo: '',
-      resultados: []
+      termo: "",
+      resultados: [],
     };
   },
   methods: {
     async buscarOperadora() {
-      if (this.termo.length < 3) {
-        this.resultados = [];
-        return;
-      }
-      try {
-        const response = await axios.get(`http://127.0.0.1:5000/buscar?termo=${this.termo}`);
-        console.log("Dados recebidos:", response.data);
-        this.resultados = response.data;
-      } catch (error) {
-        console.error("Erro ao buscar operadora", error);
-      }
-    }
-  }
+      this.resultados = await buscarOperadora(this.termo);
+    },
+  },
 };
 </script>
 
-<style>
-.container {
-  text-align: center;
-  margin: 20px;
-}
-input {
-  padding: 10px;
-  width: 300px;
-  margin-bottom: 10px;
-}
-ul {
-  list-style: none;
-  padding: 0;
-}
-</style>
+<style src="./SearchOperadora.css"></style>
